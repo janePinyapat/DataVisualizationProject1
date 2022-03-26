@@ -1,0 +1,179 @@
+---
+title: "Assignment 1"
+author: "Pinyapat Manasboonpermpool"
+date: "`r format(Sys.Date(),'%d %B %Y')`"
+papersize: a4
+geometry: margin=4cm
+colorlinks: true
+output: 
+  pdf_document:
+    number_sections: true
+---
+
+```{r setup, include = FALSE}
+# Setup options for R Markdown
+knitr::opts_chunk$set(
+  echo       = FALSE,    # Do not print code
+  warning    = FALSE,    # Suppress warnings
+  message    = FALSE,    # Suppress messages
+  fig.align  = "center", # Center figures
+  fig.width  = 2.7,      # Good standard figure width for single-panel figures
+  fig.height = 2.4       # Good standard figure height for single-panel figures
+)
+
+library(tidyverse)
+
+# Set a theme for ggplot2
+theme_set(theme_grey(base_size = 10))
+
+# Set options
+options(
+  digits = 3, # limit the number of significant digits
+  width  = 63 # limit the width of code output
+)
+```
+
+# Task 1
+
+**Introduction**
+
+In Task 1, we begin to analyse the data set *starwars*, which contains characteristics of many of the characters in the Star Wars universe. 
+
+First, the package *tidyverse* should be installed and loaded to be able to access to the data set *starwars*. 
+
+To view the information of the data set, the head() function is coded to present all the variables and observations. There are 14 variables in total which are classified as *name, height, mass, hair_color, skin_color, eye_color, birth_year, sex, gender, homeworld, species, films, vehicles*, and *starships*. Each variable of column consists of its observation in row, consisting the total of 87 observations.
+
+```{r echo = TRUE}
+
+library(tidyverse)
+head(starwars)
+```
+\newpage
+
+The main focus of Task 1 is to summarize the average mean of weighted mass which is grouped by the eye colors specifically to the category of home world - *Tatooine*.
+
+To begin with, we use the filter() function to specify the category of home world - *Tatooine*. Then, as the expected outcome of the average mean we which to compute is related to the mass data, those *missing* values of observations should be included by using the function drop_na(). Followed by the function group(), this is used to take a consideration of the data set of variable *eye_color* to compute the average mean of weighted mass. Lastly, the average computation is named as *avg_mass* and this is added as a variable by using of summarize() function.
+
+```{r, echo = TRUE}
+# Pull some data from the starwars data set
+starwars_tatooine_summary <-
+  starwars %>%
+  filter(homeworld == "Tatooine") %>% 
+  drop_na(mass) %>%
+  group_by(eye_color) %>%
+  summarize(avg_mass = mean(mass))
+
+```
+
+The result of the average weighted mass can be demonstrated by the visualization of the bar charts.
+
+According to the data, the bar charts are laid out four distinctive types of eye colors on the X-axis and the average weight on the Y-axis for the case of home world *Tatooine*.
+
+```{r plot1, fig.cap = "The average mass of eye colors in the homeworld of Tatooine", fig.width = 5}
+ggplot(starwars_tatooine_summary, aes(eye_color, avg_mass)) +
+  geom_col() +
+  xlab("Eye Color") +
+  ylab("Average Weight")
+```
+**Conclusion**
+
+The charts indicate the result of the yellow eye color with the highest average weight of above 100 (kg) in *Tatooine*.Following with the other types, the blue color group is with the second higested weight of above 90 (kg), the brown color group is with the weight of below 90 (kg), and lastly the red color group is with the lowest average weight of above 25 (kg), respectively. (Figure 1).
+
+
+# Task 2
+
+**Introduction**
+
+In Task 2, the data set *table4a* which contains the information about the tuberculosis (TB) cases in three countries, *Afghanistan, Brazil, China*, during the two period of years in 1999 and 2000.
+
+
+First, we view *table4a* data set and notice that there are three rows and three columns which the information of both the variables and observations has an untidy look. This data table is inapplicable to be used for an analysis. 
+
+To elaborate, apart from the country column, the other two columns on the right consist of values in numbers which can be assumed as cases and years located without the indication of columns names of the variables. The reason to explain this untidy table is that the data table have some *missing* variables names in the columns, as well as, the values of observations are not put in rows as expected. Therefore, we should adjust the data table accordingly before taking any further steps.   
+
+
+Based on the observations of data in the table, the *missing* variables to be set in the table are *year* and *cases*. 
+
+```{r, echo = TRUE}
+library(tidyverse)
+table4a
+```
+\newpage
+
+**Conclusion**
+
+To adjust the data of *table4a*, we need to create the columns for those missing variables by using the function of pivot_longer(). This way, we create the new column for the years and the new column of the number of tuberculosis cases in 1999 and 2000. This tidy data set is called *table4a_tidy*.
+
+```{r table1, echo = TRUE}
+# tidy up table4a and call it a new variable "table4a_tidy"
+table4a_tidy <- table4a %>%
+                pivot_longer(c("1999", "2000"), 
+                names_to = "Year", 
+                values_to = "Cases") %>%
+                rename(Country = country)
+```
+
+
+```{r echo = FALSE}
+table4a_tidy %>%
+                
+                knitr::kable(
+                caption = "The number of tuberculosis cases outbreak in 1999 and 2000",
+                booktabs = TRUE, 
+                format.args = list(big.mark = ",", scientific = FALSE)
+  )
+```
+\newpage
+# Task 3
+
+**Introduction**
+
+In Task 3, when viewing the data set *table4b* which contains the information about the population in three countries, *Afghanistan, Brazil, China*, during the two period of years in 1999 and 2000, we notice that it has the same untidy look of data table similar to *table4a*. We can then repeat the same steps as in the *table4a_tidy* in order to create the columns for new variables of year and population. 
+
+```{r, echo = TRUE}
+library(tidyverse)
+table4b
+
+```
+To adjust the data of *table4b*, we need to create the columns for those missing variables by using the function of pivot_longer(). This way, we create the new column for the years and the new column of the number of population in 1999 and 2000. This tidy data set is called *table4b_tidy*. 
+
+```{r table2, echo = TRUE}
+#tidy up table4b and call it a new variable "table4b_tidy"
+  library(dplyr)
+table4b_tidy <- table4b %>% 
+                pivot_longer(
+                c("1999", "2000"), 
+                names_to = "Year", 
+                values_to = "Population") %>%
+                rename(Country = country)
+```
+
+```{r, echo = FALSE}
+table4b_tidy %>%
+
+                head(4) %>%
+                knitr::kable(
+                caption = "The number of population in Afghannistan, Brazil, China in 1999 and 2000",
+                booktabs = TRUE,
+                format.args = list(big.mark = ",", scientific = FALSE)
+  )
+```
+
+To analyze the data of two tables *table4a* and *table4b*, we merge the two data sets using the left_join() function which allows the two data sets of tables that have the common variables names such as the *country* and *year* columns in this case to combine. As a result, we create a new combined data set between *table4a_tidy* and *table4b_tidy* which allows us to compute for the proportional rate of tuberculosis in population.
+
+```{r table3, echo = TRUE}
+  table4 <- left_join(table4a_tidy, table4b_tidy) %>%
+            mutate(Rate = (Cases/Population))
+```
+```{r, echo = FALSE}
+            table4 %>%
+                knitr::kable(
+                caption = "The data set of cases and population rate in Afghanistan, Brazil, China in 1999 and 2000",
+                booktabs = TRUE,
+                format.args = list(big.mark = ",", scientific = FALSE),
+                digits = c(0,0,0,0,6)
+                )
+```
+**Conclusion**
+
+According to the new data set of table, there were increased rates of tuberculosis cases in populations in *Afghanistan* and *Brazil* in the two periods of 1999 and 2000. However, China experienced no significant changes in the rates of tuberculosis cases in their population in both years of 1999 and 2000.  
